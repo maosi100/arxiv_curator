@@ -36,12 +36,12 @@ class ArxivClient:
         return f"[{yesterday.strftime('%Y%m%d')}0400+TO+{today.strftime('%Y%m%d')}0400]"
 
     def _parse_paper_feed(self, paper_feed: str) -> list[dict]:
-        feed = feedparser.parse(paper_feed)
+        atom_feed = feedparser.parse(paper_feed)
         parsed_feed = []
 
-        logger.debug(f"Parsing feed for query: {feed.title}")
+        logger.debug(f"Parsing feed for query: {atom_feed.feed.title}")
 
-        for entry in feed.entries:
+        for entry in atom_feed.entries:
             authors = []
             for author in entry.authors:
                 authors.append(author.name)
