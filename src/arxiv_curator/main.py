@@ -1,5 +1,9 @@
+from core.workflow_orchestrator import WorkflowOrchestrator
+
+
 def main():
-    print("Hello from arxiv-curator!")
+    workflow_orchestrator = WorkflowOrchestrator()
+    workflow_orchestrator.start_workflow()
 
 
 if __name__ == "__main__":
