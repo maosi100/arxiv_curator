@@ -1,6 +1,7 @@
 import os
 import json
 import re
+import time
 from loguru import logger
 from google import genai
 from google.genai import types
@@ -14,7 +15,31 @@ class AiAdapter:
         self, system_prompt: str, user_prompt: str, temperature: float
     ) -> list[dict]:
         response = self._generate_response(system_prompt, user_prompt, temperature)
-        return self._parse_response(response.text)
+        logger.debug("Response Generated")
+        return self._parse_response(response)
+
+    def generate_completion_with_url(
+        self, system_prompt: str, user_prompt: str, temperature: float
+    ) -> str:
+        tools = [{"url_context": {}}]
+
+        for _ in range(3):
+            try:
+                response = self._generate_response(
+                    system_prompt, user_prompt, temperature, tools
+                )
+                break
+            except ValueError:
+                time.sleep(10)
+                continue
+
+        if response.candidates[0].url_context_metadata:
+            metadata = response.candidates[0].url_context_metadata
+            for url_meta in metadata.url_metadata:
+                logger.debug(f"URL Retrieved: {url_meta.retrieved_url}")
+                logger.debug(f"Status: {url_meta.url_retrieval_status}")
+
+        return response.text
 
     def _connect(self) -> genai.Client:
         try:
@@ -25,7 +50,11 @@ class AiAdapter:
             raise
 
     def _generate_response(
-        self, system_prompt: str, user_prompt: str, temperature: float
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        temperature: float,
+        tools: list[dict] | None = None,
     ) -> types.GenerateContentResponse:
         try:
             response = self.client.models.generate_content(
@@ -34,6 +63,7 @@ class AiAdapter:
                 config=types.GenerateContentConfig(
                     temperature=temperature,
                     system_instruction=system_prompt,
+                    tools=tools,
                 ),
             )
 
@@ -42,18 +72,19 @@ class AiAdapter:
                 logger.error(error)
                 raise ValueError(error)
 
-            logger.debug(f"Response generated {response.text[200]}")
             return response
 
         except Exception as e:
             logger.exception(f"Could not generate AI response: {e}")
             raise
 
-    def _parse_response(self, response: str) -> list[dict]:
+    def _parse_response(self, response: types.GenerateContentResponse) -> list[dict]:
         try:
-            return json.loads(response)
+            return json.loads(response.text)
         except json.JSONDecodeError:
-            match = re.search(r"```(?:json)?\s*(\[.*\])\s*```", response, re.DOTALL)
+            match = re.search(
+                r"```(?:json)?\s*(\[.*\])\s*```", response.text, re.DOTALL
+            )
             if match:
                 return json.loads(match.group(1))
             raise
