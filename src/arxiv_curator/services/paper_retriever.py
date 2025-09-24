@@ -22,6 +22,7 @@ class PaperRetriever:
                 abstract=paper["abstract"],
                 authors=paper["authors"],
                 published_on=paper["published_on"],
+                pdf_link=paper["pdf_link"],
             )
             filtered_papers.append(paper_object)
 

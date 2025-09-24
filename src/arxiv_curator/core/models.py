@@ -8,6 +8,7 @@ class Paper:
     abstract: str
     authors: list[str]
     published_on: str
+    pdf_link: str
 
 
 @dataclass

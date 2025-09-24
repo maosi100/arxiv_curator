@@ -46,12 +46,19 @@ class ArxivClient:
             for author in entry.authors:
                 authors.append(author.name)
 
+            for possible_link in entry.links:
+                if possible_link["type"] == "application/pdf":
+                    link = possible_link["href"]
+                else:
+                    link = "no pdf link found"
+
             entry_dict = {
                 "arxiv_id": entry.id,
                 "title": entry.title.replace("\n", " "),
                 "abstract": entry.summary.replace("\n", " "),
                 "authors": authors,
                 "published_on": entry.published,
+                "pdf_link": link,
             }
 
             parsed_feed.append(entry_dict)
