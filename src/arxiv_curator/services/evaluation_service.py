@@ -1,3 +1,4 @@
+from data.database_repository import DatabaseRepository
 from core.models import PaperWithEvaluation, PaperWithSummary
 from services.ai_adapter import AiAdapter
 from prompts.paper_evaluation_prompt import PAPER_EVALUATION_PROMPT
@@ -6,10 +7,13 @@ from prompts.paper_evaluation_prompt import PAPER_EVALUATION_PROMPT
 class EvaluationService:
     def __init__(self) -> None:
         self.ai_adapter = AiAdapter()
+        self.database_repository = DatabaseRepository()
         self.system_prompt = PAPER_EVALUATION_PROMPT
         self.temperature = 0.6
 
-    def evaluate_papers(self, papers: list[PaperWithSummary]):
+    def evaluate_papers(
+        self, papers: list[PaperWithSummary]
+    ) -> list[PaperWithEvaluation]:
         user_prompt, indexed_papers = self._create_user_prompt_and_paper_index(papers)
         response = self.ai_adapter.generate_completion(
             self.system_prompt, user_prompt, self.temperature
@@ -28,7 +32,9 @@ class EvaluationService:
             )
             evaluated_papers.append(evaluated_paper)
 
-        print(evaluated_papers)
+        self.database_repository.save_evaluated_papers(evaluated_papers)
+
+        return evaluated_papers
 
     def _create_user_prompt_and_paper_index(
         self, papers: list[PaperWithSummary]

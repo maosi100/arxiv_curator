@@ -34,7 +34,7 @@ class RankingService:
     ) -> tuple[str, dict[str, Paper]]:
         indexed_papers = {}
         user_prompt = []
-        for index, paper in enumerate(papers):
+        for index, paper in enumerate(papers, 1):
             user_prompt.append(f"Paper Number: {index}")
             user_prompt.append(paper.arxiv_id)
             user_prompt.append(paper.title)

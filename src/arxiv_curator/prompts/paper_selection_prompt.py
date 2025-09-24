@@ -79,6 +79,7 @@ Example output structure:
 ]
 
 Return only the JSON array, no additional text or markdown code blocks.
+Make sure to NOT add any additional quotation marks ("'`) where it's not required.
 </output_format>
 
 <decision_framework>
