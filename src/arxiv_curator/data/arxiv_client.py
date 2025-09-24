@@ -39,7 +39,7 @@ class ArxivClient:
         atom_feed = feedparser.parse(paper_feed)
         parsed_feed = []
 
-        logger.debug(f"Parsing feed for query: {atom_feed.feed.title}")
+        logger.debug(f"API Response received for: {atom_feed.feed.title}")
 
         for entry in atom_feed.entries:
             authors = []
