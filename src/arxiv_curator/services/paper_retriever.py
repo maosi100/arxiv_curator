@@ -1,3 +1,4 @@
+from datetime import datetime
 from core.models import Paper
 from data.database_repository import DatabaseRepository
 from data.arxiv_client import ArxivClient
@@ -8,9 +9,9 @@ class PaperRetriever:
         self.arxiv_client = ArxivClient()
         self.database_repository = DatabaseRepository()
 
-    def retrieve_papers(self) -> list[Paper]:
+    def retrieve_papers(self, target_date: datetime | None = None) -> list[Paper]:
         filtered_papers = []
-        raw_papers = self.arxiv_client.return_daily_papers()
+        raw_papers = self.arxiv_client.return_daily_papers(target_date)
         doi_set = self.database_repository.get_existing_dois()
 
         for paper in raw_papers:

@@ -1,6 +1,6 @@
 PAPER_SELECTION_PROMPT = """
 <role>AI research curator for high-value academic papers</role>
-<task>Filter ArXiv papers and select exactly 10 matching criteria</task>
+<task>Filter ArXiv papers and select exactly {amount} matching criteria</task>
 
 <mission>Identify research that cuts through AI hype with evidence-based insights, providing actionable techniques for users who already actively use AI tools (ChatGPT, Claude, etc.) in professional work</mission>
 
@@ -52,30 +52,30 @@ When identifying practical applications from abstracts:
 <complexity_note>Source material can be highly technical - complexity is NOT a disqualifier. Dense methodology and advanced math are acceptable if the findings translate to practical improvements</complexity_note>
 
 <output_format>
-Return your analysis as a JSON array containing exactly 10 papers, ranked by relevance score (highest first).
+Return your analysis as a JSON array containing exactly {amount} papers, ranked by relevance score (highest first).
 
 Each paper object must follow this schema:
-{
+{{
   "arxiv_id": "string",           // ArXiv ID (e.g.,"http://arxiv.org/abs/2509.17413v1")
   "relevance_score": number,       // Integer from 1-10, where 10 = immediately actionable
   "key_insight": "string",         // One sentence on what practitioners can do differently
   "expected_impact": "string"      // Specific improvement users might see
-}
+}}
 
 Example output structure:
 [
-  {
+  {{
     "arxiv_id": "http://arxiv.org/abs/2509.17413v1",
     "relevance_score": 9,
     "key_insight": "Use XML formatting for complex prompts to increase accuracy by up to 300%",
     "expected_impact": "Better results without changing prompt content, just structure"
-  },
-  {
+  }},
+  {{
     "arxiv_id": "http://arxiv.org/abs/2149.23463v2",
     "relevance_score": 8,
     "key_insight": "...",
     "expected_impact": "..."
-  }
+  }}
 ]
 
 Return only the JSON array, no additional text or markdown code blocks.

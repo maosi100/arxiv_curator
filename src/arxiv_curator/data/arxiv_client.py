@@ -8,17 +8,16 @@ class ArxivClient:
     def __init__(self) -> None:
         self.url = "http://export.arxiv.org/api/"
 
-    def return_daily_papers(self) -> list[dict]:
-        paper_feed = self._get_daily_papers()
+    def return_daily_papers(
+        self, target_date: datetime.datetime | None = None
+    ) -> list[dict]:
+        submission_period = self._construct_submission_period(target_date)
+        paper_feed = self._get_daily_papers(submission_period)
         parsed_feed = self._parse_paper_feed(paper_feed)
 
         return parsed_feed
 
-    def get_full_text(self, doi: str):
-        pass
-
-    def _get_daily_papers(self) -> str:
-        submission_period = self._construct_submission_period()
+    def _get_daily_papers(self, submission_period: str) -> str:
         query = (
             "query?search_query=cat:cs.AI+AND+submittedDate:"
             + submission_period
@@ -30,10 +29,13 @@ class ArxivClient:
 
         return response.text
 
-    def _construct_submission_period(self) -> str:
-        today = datetime.datetime.now(datetime.UTC)
-        yesterday = today - datetime.timedelta(days=1)
-        return f"[{yesterday.strftime('%Y%m%d')}0400+TO+{today.strftime('%Y%m%d')}0400]"
+    def _construct_submission_period(
+        self, target_date: datetime.datetime | None = None
+    ) -> str:
+        if not target_date:
+            target_date = datetime.datetime.now(datetime.UTC)
+        day_before = target_date - datetime.timedelta(days=1)
+        return f"[{day_before.strftime('%Y%m%d')}0400+TO+{target_date.strftime('%Y%m%d')}0400]"
 
     def _parse_paper_feed(self, paper_feed: str) -> list[dict]:
         atom_feed = feedparser.parse(paper_feed)

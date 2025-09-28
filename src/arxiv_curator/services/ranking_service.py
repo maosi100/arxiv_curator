@@ -9,15 +9,22 @@ class RankingService:
         self.system_prompt = PAPER_SELECTION_PROMPT
         self.temperature = 0.8
 
-    def rank_papers(self, papers: list[Paper]) -> list[PaperWithRanking]:
+    def rank_papers(
+        self, papers: list[Paper], target_amount: str | None = None
+    ) -> list[PaperWithRanking]:
+        if not target_amount:
+            target_amount = "10"
+
         user_prompt, indexed_papers = self._create_user_prompt_and_paper_index(papers)
         response = self.ai_adapter.generate_completion(
-            self.system_prompt, user_prompt, self.temperature
+            self.system_prompt.format(amount=target_amount),
+            user_prompt,
+            self.temperature,
         )
 
         ranked_papers = []
         for raw_paper in response:
-            arxiv_id = raw_paper["arxiv_id"]
+            arxiv_id = raw_paper["arxiv_id"].strip("\"'")
 
             ranked_paper = PaperWithRanking(
                 paper=indexed_papers[arxiv_id],
