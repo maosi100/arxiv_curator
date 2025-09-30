@@ -3,6 +3,7 @@
 
 ### PROJECT SPECIFIC ###
 *.db
+config/*
 
 ### OSX ###
 # General
