@@ -58,7 +58,7 @@ class AiAdapter:
     ) -> types.GenerateContentResponse:
         try:
             response = self.client.models.generate_content(
-                model="gemini-2.5-flash",
+                model="gemini-2.5-pro",
                 contents=user_prompt,
                 config=types.GenerateContentConfig(
                     temperature=temperature,

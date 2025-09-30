@@ -1,4 +1,5 @@
 import datetime
+from presentation.report_formater import ReportFormatter
 from presentation.email_notifier import EmailNotifier
 from services.evaluation_service import EvaluationService
 from services.summary_service import SummaryService
@@ -12,14 +13,19 @@ class WorkflowOrchestrator:
         self.ranking_service = RankingService()
         self.summary_service = SummaryService()
         self.evaluation_service = EvaluationService()
+        self.report_formatter = ReportFormatter()
         self.email_notifier = EmailNotifier()
 
-    def start_workflow(self):
+    def run_workflow(self):
+        current_date = datetime.datetime.now().strftime("%Y-%m-%d")
         papers = self.paper_retriever.retrieve_papers()
         ranked_papers = self.ranking_service.rank_papers(papers)
         summarized_papers = self.summary_service.summarize_papers(ranked_papers)
         evaluated_papers = self.evaluation_service.evaluate_papers(summarized_papers)
-        self.email_notifier.send_email()
+        email_report = self.report_formatter.format_report(
+            evaluated_papers, current_date
+        )
+        self.email_notifier.send_email(email_report)
 
     def start_weekly_workflow(self):
         cutoff_date = datetime.datetime(2025, 9, 26)
@@ -29,9 +35,8 @@ class WorkflowOrchestrator:
         for day in range(time_period):
             target_date = cutoff_date - datetime.timedelta(days=day)
             papers = self.paper_retriever.retrieve_papers(target_date)
-            ranked_papers.append(
-                self.ranking_service.rank_papers(papers, target_amount)
-            )
+            for paper in self.ranking_service.rank_papers(papers, target_amount):
+                ranked_papers.append(paper)
         summarized_papers = self.summary_service.summarize_papers(ranked_papers)
         evaluated_papers = self.evaluation_service.evaluate_papers(summarized_papers)
         for index, paper in enumerate(evaluated_papers, 1):

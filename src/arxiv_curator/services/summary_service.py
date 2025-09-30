@@ -1,3 +1,4 @@
+import time
 from services.ai_adapter import AiAdapter
 from core.models import PaperWithRanking, PaperWithSummary
 from prompts.paper_summary_prompt import PAPER_SUMMARY_PROMPT
@@ -26,5 +27,6 @@ class SummaryService:
                 ranked_paper=paper_with_ranking, summary_data=response
             )
             summarized_papers.append(summarized_paper)
+            time.sleep(45)
 
         return summarized_papers

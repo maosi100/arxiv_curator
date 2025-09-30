@@ -7,7 +7,7 @@ from core.workflow_orchestrator import WorkflowOrchestrator
 def main():
     load_dotenv()
     workflow_orchestrator = WorkflowOrchestrator()
-    workflow_orchestrator.start_workflow()
+    workflow_orchestrator.run_workflow()
 
 
 if __name__ == "__main__":
