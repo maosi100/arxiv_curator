@@ -20,6 +20,7 @@ class ArxivClient:
     def _get_daily_papers(self, submission_period: str) -> str:
         query = (
             "query?search_query=cat:cs.AI+AND+submittedDate:"
+            # + "[202510020400+TO+202510030400]" #TODO: Hier ändern für manuelle ausführung
             + submission_period
             + "&max_results=1000"
         )

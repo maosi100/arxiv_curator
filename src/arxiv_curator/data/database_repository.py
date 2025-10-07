@@ -39,13 +39,20 @@ class DatabaseRepository:
                 )
             )
 
+            summary_data = []
+            summary_data.append(paper.summarized_paper.summary_data.approach)
+            summary_data.append(paper.summarized_paper.summary_data.key_findings)
+            summary_data.append(paper.summarized_paper.summary_data.value)
+            summary_data.append(paper.summarized_paper.summary_data.limitations)
+            summary_data.append(paper.summarized_paper.summary_data.bottom_line)
+
             data_evaluations.append(
                 (
                     paper.summarized_paper.ranked_paper.paper.arxiv_id,
                     int(paper.final_score),
                     paper.updated_key_insight,
                     paper.updated_expected_impact,
-                    paper.summarized_paper.summary_data,
+                    " ".join(summary_data),
                     paper.video_ideas,
                     datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 )

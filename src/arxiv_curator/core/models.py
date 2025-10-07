@@ -20,9 +20,18 @@ class PaperWithRanking:
 
 
 @dataclass
+class Summary:
+    approach: str
+    key_findings: str
+    value: str
+    limitations: str
+    bottom_line: str
+
+
+@dataclass
 class PaperWithSummary:
     ranked_paper: PaperWithRanking
-    summary_data: str
+    summary_data: Summary
 
 
 @dataclass

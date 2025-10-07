@@ -10,28 +10,37 @@ from google.genai import types
 class AiAdapter:
     def __init__(self) -> None:
         self.client = self._connect()
+        self.tools = [{"url_context": {}}]
 
     def generate_completion(
-        self, system_prompt: str, user_prompt: str, temperature: float
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        temperature: float,
+        tool_use: bool | None = None,
     ) -> list[dict]:
-        response = self._generate_response(system_prompt, user_prompt, temperature)
-        logger.debug("Response Generated")
-        return self._parse_response(response)
+        response = None
+        parsed_response = None
 
-    def generate_completion_with_url(
-        self, system_prompt: str, user_prompt: str, temperature: float
-    ) -> str:
-        tools = [{"url_context": {}}]
+        tools = None
+        if tool_use:
+            tools = self.tools
 
         for _ in range(3):
             try:
                 response = self._generate_response(
                     system_prompt, user_prompt, temperature, tools
                 )
+                parsed_response = self._parse_response(response)
+                logger.debug("Response Generated")
                 break
-            except ValueError:
+            except Exception as e:
+                logger.warning(f"No valid LLM response: {e}. Retrying")
                 time.sleep(10)
                 continue
+
+        if not response or not parsed_response:
+            raise ValueError("Couldn't retrieve or parse LLM response")
 
         if response.candidates[0].url_context_metadata:
             metadata = response.candidates[0].url_context_metadata
@@ -39,7 +48,7 @@ class AiAdapter:
                 logger.debug(f"URL Retrieved: {url_meta.retrieved_url}")
                 logger.debug(f"Status: {url_meta.url_retrieval_status}")
 
-        return response.text
+        return parsed_response
 
     def _connect(self) -> genai.Client:
         try:
@@ -56,27 +65,20 @@ class AiAdapter:
         temperature: float,
         tools: list[dict] | None = None,
     ) -> types.GenerateContentResponse:
-        try:
-            response = self.client.models.generate_content(
-                model="gemini-2.5-pro",
-                contents=user_prompt,
-                config=types.GenerateContentConfig(
-                    temperature=temperature,
-                    system_instruction=system_prompt,
-                    tools=tools,
-                ),
-            )
+        response = self.client.models.generate_content(
+            model="gemini-2.5-pro",
+            contents=user_prompt,
+            config=types.GenerateContentConfig(
+                temperature=temperature,
+                system_instruction=system_prompt,
+                tools=tools,
+            ),
+        )
 
-            if not response or not response.text:
-                error = "Invalid AI Response Structure"
-                logger.error(error)
-                raise ValueError(error)
+        if not response or not response.text:
+            raise ValueError("Invalid AI Response Structure")
 
-            return response
-
-        except Exception as e:
-            logger.exception(f"Could not generate AI response: {e}")
-            raise
+        return response
 
     def _parse_response(self, response: types.GenerateContentResponse) -> list[dict]:
         try:

@@ -11,7 +11,11 @@ class PaperRetriever:
 
     def retrieve_papers(self, target_date: datetime | None = None) -> list[Paper]:
         filtered_papers = []
+
         raw_papers = self.arxiv_client.return_daily_papers(target_date)
+        if not raw_papers:
+            raise ValueError("ArXiv API did not return valid paper data.")
+
         doi_set = self.database_repository.get_existing_dois()
 
         for paper in raw_papers:

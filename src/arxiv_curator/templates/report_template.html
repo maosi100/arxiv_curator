@@ -101,9 +101,33 @@
                       style="display: inline-block; background-color: #1155cc; color: #ffffff; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding: 4px 10px; border-radius: 4px; margin-bottom: 8px;">
                       📋 Summary
                     </div>
-                    <p style="margin: 8px 0 0; color: #2c3e50; font-size: 14px; line-height: 1.6;">
-                      {{ paper.summarized_paper.summary_data }}
-                    </p>
+
+                    <div style="margin-top: 12px;">
+                      <strong style="color: #1155cc; font-size: 13px;">Approach:</strong>
+                      <p style="margin: 4px 0 12px; color: #2c3e50; font-size: 14px; line-height: 1.6;">
+                        {{ paper.summarized_paper.summary_data.approach }}
+                      </p>
+
+                      <strong style="color: #1155cc; font-size: 13px;">Key Findings:</strong>
+                      <p style="margin: 4px 0 12px; color: #2c3e50; font-size: 14px; line-height: 1.6;">
+                        {{ paper.summarized_paper.summary_data.key_findings }}
+                      </p>
+
+                      <strong style="color: #1155cc; font-size: 13px;">Value:</strong>
+                      <p style="margin: 4px 0 12px; color: #2c3e50; font-size: 14px; line-height: 1.6;">
+                        {{ paper.summarized_paper.summary_data.value }}
+                      </p>
+
+                      <strong style="color: #1155cc; font-size: 13px;">Limitations:</strong>
+                      <p style="margin: 4px 0 12px; color: #2c3e50; font-size: 14px; line-height: 1.6;">
+                        {{ paper.summarized_paper.summary_data.limitations }}
+                      </p>
+
+                      <strong style="color: #1155cc; font-size: 13px;">Bottom Line:</strong>
+                      <p style="margin: 4px 0 0; color: #2c3e50; font-size: 14px; line-height: 1.6;">
+                        {{ paper.summarized_paper.summary_data.bottom_line }}
+                      </p>
+                    </div>
                   </div>
                   {% endif %}
 

@@ -40,7 +40,14 @@ class EmailNotifier:
                 )
             if not self.creds or not self.creds.valid:
                 if self.creds and self.creds.expired and self.creds.refresh_token:
-                    self.creds.refresh(Request())
+                    # TODO: Checken was da für eine Exception kam und das robuster machen
+                    try:
+                        self.creds.refresh(Request())
+                    except Exception:
+                        flow = InstalledAppFlow.from_client_secrets_file(
+                            self.credentials_path, self.scopes
+                        )
+                        self.creds = flow.run_local_server()
                 # TODO: Check if that works on a Docker Container
                 else:
                     flow = InstalledAppFlow.from_client_secrets_file(
