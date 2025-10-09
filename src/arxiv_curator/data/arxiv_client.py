@@ -13,20 +13,34 @@ class ArxivClient:
     ) -> list[dict]:
         submission_period = self._construct_submission_period(target_date)
         paper_feed = self._get_daily_papers(submission_period)
-        parsed_feed = self._parse_paper_feed(paper_feed)
+        try:
+            parsed_feed = self._parse_paper_feed(paper_feed)
+        except Exception as e:
+            raise ValueError(f"Malformed API response could not be parsed: {e}")
 
         return parsed_feed
 
     def _get_daily_papers(self, submission_period: str) -> str:
         query = (
             "query?search_query=cat:cs.AI+AND+submittedDate:"
-            # + "[202510020400+TO+202510030400]" #TODO: Hier ändern für manuelle ausführung
+            # + "[202510110600+TO+202510100400]"  # TODO: Hier ändern für manuelle ausführung
             + submission_period
             + "&max_results=1000"
         )
         url = self.url + query
 
-        response = requests.get(url)
+        response = None
+
+        for _ in range(3):
+            try:
+                response = requests.get(url)
+                logger.debug("Received ArXiv API response")
+                break
+            except requests.exceptions.RequestException as e:
+                logger.warning(f"Request Error for ArXiv API: {e}. Retrying")
+
+        if not response:
+            raise ValueError("Could not retrieve ArXiv API Data.")
 
         return response.text
 
