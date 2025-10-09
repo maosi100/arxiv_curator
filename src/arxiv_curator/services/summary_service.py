@@ -20,9 +20,12 @@ class SummaryService:
             user_prompt = f"Here's the pdf URL for you to summarize: {pdf_url}"
 
             response = self.ai_adapter.generate_completion(
-                self.system_prompt, user_prompt, self.temperature, True
+                self.system_prompt,
+                user_prompt,
+                self.temperature,
+                "gemini-2.5-flash",
+                True,
             )[0]
-            print(response)
 
             summarized_paper = PaperWithSummary(
                 ranked_paper=paper_with_ranking,

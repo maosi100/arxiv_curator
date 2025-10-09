@@ -16,7 +16,7 @@ class EvaluationService:
     ) -> list[PaperWithEvaluation]:
         user_prompt, indexed_papers = self._create_user_prompt_and_paper_index(papers)
         response = self.ai_adapter.generate_completion(
-            self.system_prompt, user_prompt, self.temperature
+            self.system_prompt, user_prompt, self.temperature, "gemini-2.5-flash"
         )
 
         evaluated_papers = []

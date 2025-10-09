@@ -29,7 +29,12 @@ class WorkflowOrchestrator:
             logger.critical(f"Couldn't retrieve Papers: {e}")
             return
 
-        ranked_papers = self.ranking_service.rank_papers(papers)
+        try:
+            ranked_papers = self.ranking_service.rank_papers(papers)
+        except Exception as e:
+            logger.critical(f"Couldn't rank Papers: {e}")
+            return
+
         summarized_papers = self.summary_service.summarize_papers(ranked_papers)
         evaluated_papers = self.evaluation_service.evaluate_papers(summarized_papers)
 

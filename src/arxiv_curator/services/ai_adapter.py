@@ -4,7 +4,7 @@ import re
 import time
 from loguru import logger
 from google import genai
-from google.genai import types
+from google.genai import types, errors
 
 
 class AiAdapter:
@@ -17,6 +17,7 @@ class AiAdapter:
         system_prompt: str,
         user_prompt: str,
         temperature: float,
+        model: str,
         tool_use: bool | None = None,
     ) -> list[dict]:
         response = None
@@ -26,21 +27,56 @@ class AiAdapter:
         if tool_use:
             tools = self.tools
 
-        for _ in range(3):
+        for retry in range(3):
             try:
-                response = self._generate_response(
-                    system_prompt, user_prompt, temperature, tools
+                response = self.client.models.generate_content(
+                    model=model,
+                    contents=user_prompt,
+                    config=types.GenerateContentConfig(
+                        temperature=temperature,
+                        system_instruction=system_prompt,
+                        tools=tools,
+                    ),
                 )
+
+                if not response:
+                    logger.warning("No valid LLM response. Retrying")
+                    continue
+
                 parsed_response = self._parse_response(response)
-                logger.debug("Response Generated")
+
+                if not parsed_response:
+                    logger.warning("Couldn't properly parse LLM response. Retrying")
+                    continue
+
+                logger.debug("Valid LLM response generated & parsed.")
                 break
-            except Exception as e:
-                logger.warning(f"No valid LLM response: {e}. Retrying")
-                time.sleep(10)
+
+            except errors.APIError as e:
+                logger.warning(
+                    f"An APIError occured during LLM operation: {e}. Retrying"
+                )
+
+                sleep_time = retry * 20 + 20
+                time.sleep(sleep_time)
                 continue
 
+            except TimeoutError as e:
+                logger.warning(f"Connection issues during LLM call: {e}. Retrying.")
+                continue
+
+            except json.JSONDecodeError as e:
+                logger.warning(f"Couldn't properly parse LLM repose: {e}. Retrying")
+                continue
+
+            except Exception as e:
+                logger.critical(f"Un unexpected exception occured: {e}. Aborting")
+                raise
+
         if not response or not parsed_response:
-            raise ValueError("Couldn't retrieve or parse LLM response")
+            raise ValueError(
+                "Couldn't retrieve or parse LLM response, stopped retrying."
+            )
 
         if response.candidates[0].url_context_metadata:
             metadata = response.candidates[0].url_context_metadata
@@ -55,30 +91,8 @@ class AiAdapter:
             client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
             return client
         except Exception as e:
-            logger.exception(f"Could not connect to AI Service: {e}")
+            logger.critical(f"Could not connect to AI Service: {e}")
             raise
-
-    def _generate_response(
-        self,
-        system_prompt: str,
-        user_prompt: str,
-        temperature: float,
-        tools: list[dict] | None = None,
-    ) -> types.GenerateContentResponse:
-        response = self.client.models.generate_content(
-            model="gemini-2.5-pro",
-            contents=user_prompt,
-            config=types.GenerateContentConfig(
-                temperature=temperature,
-                system_instruction=system_prompt,
-                tools=tools,
-            ),
-        )
-
-        if not response or not response.text:
-            raise ValueError("Invalid AI Response Structure")
-
-        return response
 
     def _parse_response(self, response: types.GenerateContentResponse) -> list[dict]:
         try:
