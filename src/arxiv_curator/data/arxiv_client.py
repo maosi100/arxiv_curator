@@ -1,4 +1,5 @@
 import datetime
+import time
 import requests
 import feedparser
 from loguru import logger
@@ -38,6 +39,7 @@ class ArxivClient:
                 break
             except requests.exceptions.RequestException as e:
                 logger.warning(f"Request Error for ArXiv API: {e}. Retrying")
+                time.sleep(10)
 
         if not response:
             raise ValueError("Could not retrieve ArXiv API Data.")
@@ -63,11 +65,10 @@ class ArxivClient:
             for author in entry.authors:
                 authors.append(author.name)
 
+            link = "no pdf link found"
             for possible_link in entry.links:
                 if possible_link["type"] == "application/pdf":
                     link = possible_link["href"]
-                else:
-                    link = "no pdf link found"
 
             entry_dict = {
                 "arxiv_id": entry.id,

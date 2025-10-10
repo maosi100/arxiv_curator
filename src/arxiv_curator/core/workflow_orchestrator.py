@@ -1,4 +1,3 @@
-from os import error
 from loguru import logger
 
 from presentation.report_formater import ReportFormatter
@@ -30,26 +29,36 @@ class WorkflowOrchestrator:
             self._send_failure_report(str(e))
             return
 
+        logger.info("Ranking retrieved papers.")
         try:
             ranked_papers = self.ranking_service.rank_papers(papers)
+            logger.info("Successfully ranked papers.")
         except Exception as e:
             logger.critical(f"Couldn't rank Papers: {e}")
             self._send_failure_report(str(e))
             return
 
+        logger.info("Summarizing ranked papers.")
         try:
             summarized_papers, summary_errors = self.summary_service.summarize_papers(
                 ranked_papers
             )
+            logger.info("Successfully summarized papers.")
+            if summary_errors:
+                logger.warning(
+                    f"A total of {len(summary_errors)} papers returned errors."
+                )
         except Exception as e:
             logger.critical(f"Couldn't summarize Papers: {e}")
             self._send_failure_report(str(e))
             return
 
+        logger.info("Evaluating summarized papers.")
         try:
             evaluated_papers = self.evaluation_service.evaluate_papers(
                 summarized_papers
             )
+            logger.info("Successfully evaluated papers.")
         except Exception as e:
             logger.critical(f"Something major went wrong during evaluation: {e}")
             evaluated_papers = None

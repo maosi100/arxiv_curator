@@ -1,5 +1,6 @@
 import os
 import base64
+import datetime
 from loguru import logger
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
@@ -20,7 +21,10 @@ class EmailNotifier:
         message = MIMEText(email_report, "html")
         message["To"] = "owsipovs@hotmail.de"
         message["From"] = "officeoptout@gmail.com"
-        message["Subject"] = "Kleiner Testi"
+        message["Subject"] = (
+            "ArXiv Paper Assessment on the "
+            + datetime.datetime.now().strftime("%Y-%m-%d")
+        )
 
         encoded_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
 

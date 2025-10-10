@@ -60,10 +60,10 @@ class EvaluationService:
             user_prompt.append(f"Expected Impact: {paper.ranked_paper.expected_impact}")
             user_prompt.append("Summary:")
             user_prompt.append(f"Approach: {paper.summary_data.approach}")
-            user_prompt.append(f"Approach: {paper.summary_data.key_findings}")
-            user_prompt.append(f"Approach: {paper.summary_data.value}")
-            user_prompt.append(f"Approach: {paper.summary_data.limitations}")
-            user_prompt.append(f"Approach: {paper.summary_data.bottom_line}")
+            user_prompt.append(f"Key Findings: {paper.summary_data.key_findings}")
+            user_prompt.append(f"Potential Value: {paper.summary_data.value}")
+            user_prompt.append(f"Limitations: {paper.summary_data.limitations}")
+            user_prompt.append(f"Bottom Line: {paper.summary_data.bottom_line}")
             indexed_papers[paper.ranked_paper.paper.arxiv_id] = paper
 
         return "\n".join(user_prompt), indexed_papers
