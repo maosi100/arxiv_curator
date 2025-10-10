@@ -13,7 +13,7 @@ def error_sink(message: Message) -> None:
     if record["level"].name in ["WARNING", "ERROR", "CRITICAL"]:
         error_store.append(
             {
-                "level": record["level"],
+                "level": record["level"].name,
                 "time": record["time"],
                 "module": record["module"],
                 "function": record["function"],

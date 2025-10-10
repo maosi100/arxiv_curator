@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ArXiv Paper Report</title>
+  <title>ArXiv Processing Report - Errors Occurred</title>
 </head>
 
 <body
@@ -18,37 +18,60 @@
           <!-- Header -->
           <tr>
             <td
-              style="background: linear-gradient(135deg, #1155cc 0%, #0d47a1 100%); padding: 40px 40px 30px; text-align: center;">
+              style="background: linear-gradient(135deg, #f57c00 0%, #e65100 100%); padding: 40px 40px 30px; text-align: center;">
               <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 600; letter-spacing: -0.5px;">
-                📚 Your Daily ArXiv Report
+                ⚠️ ArXiv Processing Report
               </h1>
               <p style="margin: 10px 0 0; color: rgba(255,255,255,0.9); font-size: 14px;">
-                {{ date|default('Today') }} • Top Research Papers
+                {{ date|default('Today') }} • Partial Results with Errors
               </p>
             </td>
           </tr>
 
-          <!-- Introduction -->
+          <!-- Alert Notice -->
           <tr>
             <td style="padding: 30px 40px 20px;">
-              <p style="margin: 0; color: #333333; font-size: 16px; line-height: 1.6;">
-                Here are today's most relevant papers for your content strategy:
-              </p>
+              <div
+                style="background-color: #fff3e0; border-left: 4px solid #ff9800; padding: 16px; border-radius: 4px;">
+                <p style="margin: 0; color: #e65100; font-size: 16px; font-weight: 600; line-height: 1.6;">
+                  ⚠️ Paper evaluation failed
+                </p>
+                <p style="margin: 8px 0 0; color: #f57c00; font-size: 14px; line-height: 1.6;">
+                  The content evaluation process encountered errors. Below are the papers that were successfully
+                  summarized, along with detailed error information.
+                </p>
+              </div>
             </td>
           </tr>
 
-          <!-- Papers Loop -->
-          {% for paper in papers %}
+          <!-- Summarized Papers Section -->
+          {% if summarized_papers %}
+          <tr>
+            <td style="padding: 30px 40px 20px;">
+              <h2
+                style="margin: 0; color: #1a1a1a; font-size: 22px; font-weight: 600; border-bottom: 2px solid #1155cc; padding-bottom: 10px;">
+                📄 Successfully Summarized Papers
+              </h2>
+            </td>
+          </tr>
+
+          {% for paper in summarized_papers %}
           <tr>
             <td style="padding: 0 40px 30px;">
               <div style="border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; background-color: #fafafa;">
 
                 <!-- Paper Header -->
                 <div style="background-color: #ffffff; padding: 24px; border-bottom: 3px solid #1155cc;">
-                  <h2 style="margin: 0 0 12px; color: #1a1a1a; font-size: 20px; font-weight: 600; line-height: 1.4;">
-                    {{ paper.summarized_paper.ranked_paper.paper.title }}
-                  </h2>
-                  <a href="{{ paper.summarized_paper.ranked_paper.paper.pdf_link }}"
+                  <h3 style="margin: 0 0 12px; color: #1a1a1a; font-size: 18px; font-weight: 600; line-height: 1.4;">
+                    {{ paper.ranked_paper.paper.title }}
+                  </h3>
+                  <div style="margin-bottom: 12px;">
+                    <span
+                      style="display: inline-block; background-color: #e3f2fd; color: #1976d2; font-size: 12px; font-weight: 500; padding: 4px 8px; border-radius: 4px; margin-right: 8px;">
+                      Relevance: {{ paper.ranked_paper.relevance_score }}/10
+                    </span>
+                  </div>
+                  <a href="{{ paper.ranked_paper.paper.pdf_link }}"
                     style="display: inline-block; color: #1155cc; text-decoration: none; font-size: 14px; font-weight: 500; padding: 8px 16px; border: 1px solid #1155cc; border-radius: 6px; transition: all 0.2s;">
                     📄 View PDF
                   </a>
@@ -57,44 +80,31 @@
                 <!-- Paper Content -->
                 <div style="padding: 24px;">
 
-                  {% if paper.updated_key_insight %}
+                  {% if paper.ranked_paper.key_insight %}
                   <div style="margin-bottom: 20px;">
                     <div
                       style="display: inline-block; background-color: #1155cc; color: #ffffff; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding: 4px 10px; border-radius: 4px; margin-bottom: 8px;">
                       💡 Key Insight
                     </div>
                     <p style="margin: 8px 0 0; color: #333333; font-size: 15px; line-height: 1.6;">
-                      {{ paper.updated_key_insight }}
+                      {{ paper.ranked_paper.key_insight }}
                     </p>
                   </div>
                   {% endif %}
 
-                  {% if paper.updated_expected_impact %}
+                  {% if paper.ranked_paper.expected_impact %}
                   <div style="margin-bottom: 20px;">
                     <div
                       style="display: inline-block; background-color: #1155cc; color: #ffffff; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding: 4px 10px; border-radius: 4px; margin-bottom: 8px;">
                       🎯 Expected Impact
                     </div>
                     <p style="margin: 8px 0 0; color: #333333; font-size: 15px; line-height: 1.6;">
-                      {{ paper.updated_expected_impact }}
+                      {{ paper.ranked_paper.expected_impact }}
                     </p>
                   </div>
                   {% endif %}
 
-                  {% if paper.video_ideas %}
-                  <div style="margin-bottom: 20px;">
-                    <div
-                      style="display: inline-block; background-color: #1155cc; color: #ffffff; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding: 4px 10px; border-radius: 4px; margin-bottom: 8px;">
-                      🎬 Video Ideas
-                    </div>
-                    <p
-                      style="margin: 8px 0 0; color: #333333; font-size: 15px; line-height: 1.6; white-space: pre-line;">
-                      {{ paper.video_ideas }}
-                    </p>
-                  </div>
-                  {% endif %}
-
-                  {% if paper.summarized_paper.summary_data %}
+                  {% if paper.summary_data %}
                   <div
                     style="background-color: #f0f4ff; border-left: 4px solid #1155cc; padding: 16px; border-radius: 4px;">
                     <div
@@ -105,27 +115,27 @@
                     <div style="margin-top: 12px;">
                       <strong style="color: #1155cc; font-size: 13px;">Approach:</strong>
                       <p style="margin: 4px 0 12px; color: #2c3e50; font-size: 14px; line-height: 1.6;">
-                        {{ paper.summarized_paper.summary_data.approach }}
+                        {{ paper.summary_data.approach }}
                       </p>
 
                       <strong style="color: #1155cc; font-size: 13px;">Key Findings:</strong>
                       <p style="margin: 4px 0 12px; color: #2c3e50; font-size: 14px; line-height: 1.6;">
-                        {{ paper.summarized_paper.summary_data.key_findings }}
+                        {{ paper.summary_data.key_findings }}
                       </p>
 
                       <strong style="color: #1155cc; font-size: 13px;">Value:</strong>
                       <p style="margin: 4px 0 12px; color: #2c3e50; font-size: 14px; line-height: 1.6;">
-                        {{ paper.summarized_paper.summary_data.value }}
+                        {{ paper.summary_data.value }}
                       </p>
 
                       <strong style="color: #1155cc; font-size: 13px;">Limitations:</strong>
                       <p style="margin: 4px 0 12px; color: #2c3e50; font-size: 14px; line-height: 1.6;">
-                        {{ paper.summarized_paper.summary_data.limitations }}
+                        {{ paper.summary_data.limitations }}
                       </p>
 
                       <strong style="color: #1155cc; font-size: 13px;">Bottom Line:</strong>
                       <p style="margin: 4px 0 0; color: #2c3e50; font-size: 14px; line-height: 1.6;">
-                        {{ paper.summarized_paper.summary_data.bottom_line }}
+                        {{ paper.summary_data.bottom_line }}
                       </p>
                     </div>
                   </div>
@@ -136,23 +146,16 @@
             </td>
           </tr>
           {% endfor %}
+          {% endif %}
 
           <!-- Summary Errors Section -->
           {% if summary_errors %}
           <tr>
-            <td style="padding: 0 40px 30px;">
-              <div style="border: 2px solid #f57c00; border-radius: 8px; overflow: hidden; background-color: #fff3e0;">
-                <div style="background-color: #ff9800; padding: 16px; text-align: center;">
-                  <h3 style="margin: 0; color: #ffffff; font-size: 18px; font-weight: 600;">
-                    ⚠️ Papers with Processing Errors
-                  </h3>
-                </div>
-                <div style="padding: 20px;">
-                  <p style="margin: 0 0 16px; color: #e65100; font-size: 14px; line-height: 1.6;">
-                    The following papers could not be fully processed. Basic information is provided below:
-                  </p>
-                </div>
-              </div>
+            <td style="padding: 30px 40px 20px;">
+              <h2
+                style="margin: 0; color: #1a1a1a; font-size: 22px; font-weight: 600; border-bottom: 2px solid #ff9800; padding-bottom: 10px;">
+                ⚠️ Papers with Summary Errors
+              </h2>
             </td>
           </tr>
 
@@ -164,9 +167,15 @@
                 <!-- Error Paper Header -->
                 <div
                   style="background-color: #ffffff; padding: 24px; border-bottom: 3px solid #ff9800; border-left: 4px solid #f57c00;">
-                  <h2 style="margin: 0 0 12px; color: #1a1a1a; font-size: 20px; font-weight: 600; line-height: 1.4;">
+                  <h3 style="margin: 0 0 12px; color: #1a1a1a; font-size: 18px; font-weight: 600; line-height: 1.4;">
                     {{ error_item.ranked_paper.paper.title }}
-                  </h2>
+                  </h3>
+                  <div style="margin-bottom: 12px;">
+                    <span
+                      style="display: inline-block; background-color: #fff3e0; color: #f57c00; font-size: 12px; font-weight: 500; padding: 4px 8px; border-radius: 4px; margin-right: 8px;">
+                      Relevance: {{ error_item.ranked_paper.relevance_score }}/10
+                    </span>
+                  </div>
                   <a href="{{ error_item.ranked_paper.paper.pdf_link }}"
                     style="display: inline-block; color: #f57c00; text-decoration: none; font-size: 14px; font-weight: 500; padding: 8px 16px; border: 1px solid #f57c00; border-radius: 6px; transition: all 0.2s;">
                     📄 View PDF
@@ -202,7 +211,7 @@
 
                   <!-- Error Message -->
                   <div
-                    style="background-color: #ffebee; border-left: 4px solid #d32f2f; padding: 16px; border-radius: 4px; margin-top: 20px;">
+                    style="background-color: #ffebee; border-left: 4px solid #d32f2f; padding: 16px; border-radius: 4px;">
                     <div
                       style="display: inline-block; background-color: #d32f2f; color: #ffffff; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding: 4px 10px; border-radius: 4px; margin-bottom: 8px;">
                       ❌ Error Details
@@ -220,14 +229,96 @@
           {% endfor %}
           {% endif %}
 
+          <!-- System Error Log Section -->
+          {% if error_store %}
+          <tr>
+            <td style="padding: 30px 40px 20px;">
+              <h2
+                style="margin: 0; color: #1a1a1a; font-size: 22px; font-weight: 600; border-bottom: 2px solid #d32f2f; padding-bottom: 10px;">
+                🔧 System Error Log
+              </h2>
+              <p style="margin: 12px 0 0; color: #666666; font-size: 14px; line-height: 1.6;">
+                Detailed technical errors encountered during processing:
+              </p>
+            </td>
+          </tr>
+
+          {% for error in error_store %}
+          <tr>
+            <td style="padding: 0 40px 20px;">
+              <div style="border: 1px solid #ef5350; border-radius: 8px; overflow: hidden; background-color: #ffebee;">
+
+                <!-- Error Header -->
+                <div
+                  style="background-color: #ffffff; padding: 16px; border-bottom: 2px solid #d32f2f; border-left: 4px solid #b71c1c;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;">
+                    <span
+                      style="display: inline-block; background-color: #d32f2f; color: #ffffff; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding: 6px 12px; border-radius: 4px;">
+                      {{ error.level }}
+                    </span>
+                    <span style="color: #999999; font-size: 12px; font-family: 'Courier New', monospace;">
+                      {{ error.time }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Error Details -->
+                <div style="padding: 20px;">
+
+                  <!-- Location Info -->
+                  <div style="margin-bottom: 16px;">
+                    <div
+                      style="display: inline-block; background-color: #d32f2f; color: #ffffff; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding: 3px 8px; border-radius: 3px; margin-bottom: 6px;">
+                      Location
+                    </div>
+                    <p
+                      style="margin: 6px 0 0; color: #666666; font-size: 13px; font-family: 'Courier New', monospace; line-height: 1.5;">
+                      <strong>Module:</strong> {{ error.module }}<br>
+                      <strong>Function:</strong> {{ error.function }}<br>
+                      <strong>Line:</strong> {{ error.line }}
+                    </p>
+                  </div>
+
+                  <!-- Error Message -->
+                  <div style="margin-bottom: 16px;">
+                    <div
+                      style="display: inline-block; background-color: #d32f2f; color: #ffffff; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding: 3px 8px; border-radius: 3px; margin-bottom: 6px;">
+                      Message
+                    </div>
+                    <p
+                      style="margin: 6px 0 0; color: #c62828; font-size: 14px; font-family: 'Courier New', monospace; line-height: 1.6; word-break: break-word;">
+                      {{ error.message }}
+                    </p>
+                  </div>
+
+                  <!-- Exception Details -->
+                  {% if error.exception %}
+                  <div style="background-color: #ffffff; border: 1px solid #ef9a9a; padding: 12px; border-radius: 4px;">
+                    <div
+                      style="display: inline-block; background-color: #b71c1c; color: #ffffff; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding: 3px 8px; border-radius: 3px; margin-bottom: 6px;">
+                      Exception Trace
+                    </div>
+                    <pre
+                      style="margin: 8px 0 0; color: #b71c1c; font-size: 12px; font-family: 'Courier New', monospace; line-height: 1.4; white-space: pre-wrap; word-wrap: break-word; overflow-x: auto;">
+                      {{ error.exception }}</pre>
+                  </div>
+                  {% endif %}
+
+                </div>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+          {% endif %}
+
           <!-- Footer -->
           <tr>
             <td style="padding: 30px 40px 40px; text-align: center; border-top: 1px solid #e0e0e0;">
               <p style="margin: 0 0 10px; color: #666666; font-size: 13px; line-height: 1.5;">
-                This automated report was generated by your ArXiv Content Scraper
+                This error report was generated by your ArXiv Content Scraper
               </p>
               <p style="margin: 0; color: #999999; font-size: 12px;">
-                Keep creating amazing content! 🚀
+                Please review the errors and check system logs for more details
               </p>
             </td>
           </tr>

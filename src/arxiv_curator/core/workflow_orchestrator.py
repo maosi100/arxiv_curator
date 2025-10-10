@@ -1,3 +1,4 @@
+from os import error
 from loguru import logger
 
 from presentation.report_formater import ReportFormatter
@@ -26,12 +27,14 @@ class WorkflowOrchestrator:
             logger.info(f"Successfully retrieved {len(papers)} papers from ArXiv.")
         except Exception as e:
             logger.critical(f"Couldn't retrieve Papers: {e}")
+            self._send_failure_report(str(e))
             return
 
         try:
             ranked_papers = self.ranking_service.rank_papers(papers)
         except Exception as e:
             logger.critical(f"Couldn't rank Papers: {e}")
+            self._send_failure_report(str(e))
             return
 
         try:
@@ -40,6 +43,7 @@ class WorkflowOrchestrator:
             )
         except Exception as e:
             logger.critical(f"Couldn't summarize Papers: {e}")
+            self._send_failure_report(str(e))
             return
 
         try:
@@ -51,6 +55,20 @@ class WorkflowOrchestrator:
             evaluated_papers = None
 
         if evaluated_papers:
-            email_report = self.report_formatter.format_report(evaluated_papers)
+            email_report = self.report_formatter.format_report(
+                evaluated_papers, summary_errors
+            )
+        else:
+            email_report = self.report_formatter.format_partial_report(
+                summarized_papers, summary_errors, self.error_store
+            )
 
         self.email_notifier.send_email(email_report)
+        return
+
+    def _send_failure_report(self, exception: str) -> None:
+        email_report = self.report_formatter.format_failure_report(
+            str(exception), self.error_store
+        )
+        self.email_notifier.send_email(email_report)
+        return
