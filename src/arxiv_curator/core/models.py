@@ -47,9 +47,3 @@ class PaperWithEvaluation:
     updated_key_insight: str
     updated_expected_impact: str
     video_ideas: str
-
-
-@dataclass
-class EvaluationError:
-    summarized_paper: PaperWithSummary
-    error: str

@@ -28,7 +28,11 @@ def main():
     load_dotenv()
     logger.add(error_sink)
     workflow_orchestrator = WorkflowOrchestrator(error_store)
-    workflow_orchestrator.run_workflow()
+    try:
+        workflow_orchestrator.run_workflow()
+    except Exception as e:
+        print(f"Process terminated in main: {e}")
+        return
     error_store.clear()
 
 
