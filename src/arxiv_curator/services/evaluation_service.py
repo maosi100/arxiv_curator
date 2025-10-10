@@ -1,3 +1,6 @@
+from loguru import logger
+
+
 from data.database_repository import DatabaseRepository
 from core.models import PaperWithEvaluation, PaperWithSummary
 from services.ai_adapter import AiAdapter
@@ -13,13 +16,20 @@ class EvaluationService:
 
     def evaluate_papers(
         self, papers: list[PaperWithSummary]
-    ) -> list[PaperWithEvaluation]:
-        user_prompt, indexed_papers = self._create_user_prompt_and_paper_index(papers)
-        response = self.ai_adapter.generate_completion(
-            self.system_prompt, user_prompt, self.temperature, "gemini-2.5-flash"
-        )
-
+    ) -> list[PaperWithEvaluation] | None:
         evaluated_papers = []
+
+        user_prompt, indexed_papers = self._create_user_prompt_and_paper_index(papers)
+
+        try:
+            response = self.ai_adapter.generate_completion(
+                self.system_prompt, user_prompt, self.temperature, "gemini-2.5-pro"
+            )
+        except Exception as e:
+            logger.error(f"Papers could not be evaluated: {e}")
+            self.database_repository.save_summarized_papers(papers)
+            return None
+
         for raw_paper in response:
             arxiv_id = raw_paper["arxiv_id"]
 

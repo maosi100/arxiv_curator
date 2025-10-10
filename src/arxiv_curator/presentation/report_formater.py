@@ -1,3 +1,4 @@
+import datetime
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from core.models import PaperWithEvaluation
 
@@ -9,8 +10,7 @@ class ReportFormatter:
         )
         self.template = self.environment.get_template("report_template.html")
 
-    def format_report(
-        self, evaluated_papers: list[PaperWithEvaluation], date: str
-    ) -> str:
-        html_content = self.template.render(papers=evaluated_papers, date=date)
+    def format_report(self, evaluated_papers: list[PaperWithEvaluation]) -> str:
+        current_date = datetime.datetime.now().strftime("%Y-%m-%d")
+        html_content = self.template.render(papers=evaluated_papers, date=current_date)
         return html_content

@@ -35,9 +35,21 @@ class PaperWithSummary:
 
 
 @dataclass
+class SummaryError:
+    ranked_paper: PaperWithRanking
+    error: str
+
+
+@dataclass
 class PaperWithEvaluation:
     summarized_paper: PaperWithSummary
     final_score: int
     updated_key_insight: str
     updated_expected_impact: str
     video_ideas: str
+
+
+@dataclass
+class EvaluationError:
+    summarized_paper: PaperWithSummary
+    error: str

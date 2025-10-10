@@ -70,8 +70,8 @@ class AiAdapter:
                 continue
 
             except Exception as e:
-                logger.critical(f"Un unexpected exception occured: {e}. Aborting")
-                raise
+                logger.warning(f"Un unexpected exception occured: {e}. Retrying")
+                continue
 
         if not response or not parsed_response:
             raise ValueError(

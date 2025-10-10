@@ -1,5 +1,4 @@
 from loguru import logger
-import datetime
 
 from presentation.report_formater import ReportFormatter
 from presentation.email_notifier import EmailNotifier
@@ -35,11 +34,23 @@ class WorkflowOrchestrator:
             logger.critical(f"Couldn't rank Papers: {e}")
             return
 
-        summarized_papers = self.summary_service.summarize_papers(ranked_papers)
-        evaluated_papers = self.evaluation_service.evaluate_papers(summarized_papers)
+        try:
+            summarized_papers, summary_errors = self.summary_service.summarize_papers(
+                ranked_papers
+            )
+        except Exception as e:
+            logger.critical(f"Couldn't summarize Papers: {e}")
+            return
 
-        current_date = datetime.datetime.now().strftime("%Y-%m-%d")
-        email_report = self.report_formatter.format_report(
-            evaluated_papers, current_date
-        )
+        try:
+            evaluated_papers = self.evaluation_service.evaluate_papers(
+                summarized_papers
+            )
+        except Exception as e:
+            logger.critical(f"Something major went wrong during evaluation: {e}")
+            evaluated_papers = None
+
+        if evaluated_papers:
+            email_report = self.report_formatter.format_report(evaluated_papers)
+
         self.email_notifier.send_email(email_report)
