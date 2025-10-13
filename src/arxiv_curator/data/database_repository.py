@@ -1,3 +1,4 @@
+import os
 import sqlite3
 import datetime
 
@@ -7,6 +8,9 @@ from core.models import PaperWithEvaluation, PaperWithSummary
 class DatabaseRepository:
     def __init__(self) -> None:
         self.database = "../../data/arxiv_curator.db"
+        self.db_path = os.getenv("ARXIV_DB_PATH")
+        if self.db_path:
+            self.database = self.db_path + "arxiv_curator.db"
         self.connection = sqlite3.connect(self.database)
 
     def get_existing_dois(self) -> set[str]:

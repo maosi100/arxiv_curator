@@ -25,7 +25,7 @@ def error_sink(message: Message) -> None:
 
 
 def main():
-    load_dotenv()
+    load_dotenv("../../.env")
     logger.add(error_sink)
     workflow_orchestrator = WorkflowOrchestrator(error_store)
     try:

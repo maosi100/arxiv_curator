@@ -14,10 +14,14 @@ class EmailNotifier:
         self.scopes = [os.environ["GMAIL_SEND_SCOPE"]]
         self.token_path = "../../config/token.json"
         self.credentials_path = "../../config/credentials.json"
+        self.config_path = os.getenv("GMAIL_CONFIG_PATH")
+        if self.config_path:
+            self.token_path = self.config_path + "token.json"
+            self.credentials_path = self.config_path + "credentials.json"
         self.creds = None
         self.gmail_service = self._connect()
 
-    def send_email(self, email_report: str):
+    def send_email(self, email_report: str) -> None:
         message = MIMEText(email_report, "html")
         message["To"] = "owsipovs@hotmail.de"
         message["From"] = "officeoptout@gmail.com"
