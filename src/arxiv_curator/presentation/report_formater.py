@@ -1,3 +1,4 @@
+import os
 import datetime
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from core.models import PaperWithEvaluation, PaperWithSummary, SummaryError
@@ -5,8 +6,11 @@ from core.models import PaperWithEvaluation, PaperWithSummary, SummaryError
 
 class ReportFormatter:
     def __init__(self) -> None:
+        self.template_path = "./templates/"
+        if os.getenv("TEMPLATE_PATH"):
+            self.template_path = os.getenv("TEMPLATE_PATH")
         self.environment = Environment(
-            loader=FileSystemLoader("./templates/"), autoescape=select_autoescape()
+            loader=FileSystemLoader(self.template_path), autoescape=select_autoescape()
         )
         self.template = self.environment.get_template("report_template.html")
 
