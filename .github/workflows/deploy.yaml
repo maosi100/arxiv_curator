@@ -1,0 +1,23 @@
+name: Deployment on VPS
+
+on:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build new Docker image after repo update
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd ~/arxiv_curator/
+            git pull
+            docker rmi arxiv-curator:latest || true
+            docker build -t arxiv-curator:latest .
