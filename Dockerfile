@@ -10,4 +10,4 @@ COPY src/ ./src/
 
 ENV PYTHONPATH=/app/src/arxiv_curator
 
-CMD ["uv", "run", "src/arxiv_curator/test_workflow.py"]
+CMD ["uv", "run", "src/arxiv_curator/main.py"]
