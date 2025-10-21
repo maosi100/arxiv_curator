@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 
 from data.arxiv_client import ArxivClient
 from services.ai_adapter import AiAdapter
+from presentation.report_formater import ReportFormatter
 from presentation.email_notifier import EmailNotifier
 from data.database_repository import DatabaseRepository
 
@@ -37,8 +38,11 @@ def test_workflow() -> None:
 
     print("Testing Email Notification")
     try:
+        report_formater = ReportFormatter()
         email_notifier = EmailNotifier()
-        email_notifier.send_email("Message from Test Workflow")
+        email_notifier.send_email(
+            report_formater.format_failure_report("Test Exception", [{"name": "value"}])
+        )
     except Exception as e:
         print(f"Email Sending failed: {e}")
 

@@ -1,71 +1,33 @@
 import os
-import base64
 import datetime
+import smtplib
 from loguru import logger
-from google.oauth2.credentials import Credentials
-from google.auth.transport.requests import Request
-from google_auth_oauthlib.flow import InstalledAppFlow
-from googleapiclient.discovery import build
 from email.mime.text import MIMEText
 
 
 class EmailNotifier:
     def __init__(self) -> None:
-        self.scopes = [os.environ["GMAIL_SEND_SCOPE"]]
-        self.token_path = "../../config/token.json"
-        self.credentials_path = "../../config/credentials.json"
-        self.config_path = os.getenv("GMAIL_CONFIG_PATH")
-        if self.config_path:
-            self.token_path = self.config_path + "token.json"
-            self.credentials_path = self.config_path + "credentials.json"
-        self.creds = None
-        self.gmail_service = self._connect()
+        try:
+            self.password = os.environ["GMAIL_SMTP_PASSWORD"]
+            self.sender = os.environ["GMAIL_SMTP_SENDER"]
+            self.recipient = os.environ["GMAIL_SMTP_RECIPIENT"]
+        except KeyError as e:
+            logger.critical(f"Couln't access Email Credentials: {e}")
+            raise
 
     def send_email(self, email_report: str) -> None:
         message = MIMEText(email_report, "html")
-        message["To"] = "owsipovs@hotmail.de"
-        message["From"] = "officeoptout@gmail.com"
+        message["To"] = self.recipient
+        message["From"] = self.sender
         message["Subject"] = (
             "ArXiv Paper Assessment on the "
             + datetime.datetime.now().strftime("%Y-%m-%d")
         )
 
-        encoded_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
-
-        create_message = {"raw": encoded_message}
-        send_message = (
-            self.gmail_service.users()
-            .messages()
-            .send(userId="me", body=create_message)
-            .execute()
-        )
-
-    def _connect(self) -> None:
         try:
-            if os.path.exists(self.token_path):
-                self.creds = Credentials.from_authorized_user_file(
-                    self.token_path, self.scopes
-                )
-            if not self.creds or not self.creds.valid:
-                if self.creds and self.creds.expired and self.creds.refresh_token:
-                    # TODO: Checken was da für eine Exception kam und das robuster machen
-                    try:
-                        self.creds.refresh(Request())
-                    except Exception:
-                        flow = InstalledAppFlow.from_client_secrets_file(
-                            self.credentials_path, self.scopes
-                        )
-                        self.creds = flow.run_local_server()
-                # TODO: Check if that works on a Docker Container
-                else:
-                    flow = InstalledAppFlow.from_client_secrets_file(
-                        self.credentials_path, self.scopes
-                    )
-                    self.creds = flow.run_local_server()
-                with open(self.token_path, "w") as token:
-                    token.write(self.creds.to_json())
-
-            return build("gmail", "v1", credentials=self.creds)
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp_server:
+                smtp_server.login(self.sender, self.password)
+                smtp_server.sendmail(self.sender, self.recipient, message.as_string())
         except Exception as e:
-            logger.exception(f"Could not authorize Gmail: {e}")
+            logger.critical(f"Couldn't send email: {e}")
             raise
