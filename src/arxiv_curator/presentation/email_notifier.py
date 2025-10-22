@@ -25,7 +25,8 @@ class EmailNotifier:
         )
 
         try:
-            with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp_server:
+            with smtplib.SMTP("smtp.gmail.com", 587) as smtp_server:
+                smtp_server.starttls()
                 smtp_server.login(self.sender, self.password)
                 smtp_server.sendmail(self.sender, self.recipient, message.as_string())
         except Exception as e:
