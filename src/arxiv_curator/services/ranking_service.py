@@ -15,27 +15,37 @@ class RankingService:
         if not target_amount:
             target_amount = "10"
 
-        user_prompt, indexed_papers = self._create_user_prompt_and_paper_index(papers)
-        response = self.ai_adapter.generate_completion(
-            self.system_prompt.format(amount=target_amount),
-            user_prompt,
-            self.temperature,
-            model="gemini-2.5-flash",
-        )
+        mid_point = len(papers) // 2
+        batches = [papers[:mid_point], papers[mid_point:]]
 
-        ranked_papers = []
-        for raw_paper in response:
-            arxiv_id = raw_paper["arxiv_id"].strip("\"'")
+        all_ranked_papers = []
+        indexed_papers = {}
 
-            ranked_paper = PaperWithRanking(
-                paper=indexed_papers[arxiv_id],
-                relevance_score=raw_paper["relevance_score"],
-                key_insight=raw_paper["key_insight"],
-                expected_impact=raw_paper["expected_impact"],
+        for batch in batches:
+            user_prompt, batch_indexed_papers = (
+                self._create_user_prompt_and_paper_index(batch)
             )
-            ranked_papers.append(ranked_paper)
+            indexed_papers.update(batch_indexed_papers)
 
-        return ranked_papers
+            response = self.ai_adapter.generate_completion(
+                self.system_prompt.format(amount=str(int(target_amount) // 2)),
+                user_prompt,
+                self.temperature,
+                model="gemini-2.5-flash",
+            )
+
+            for raw_paper in response:
+                arxiv_id = raw_paper["arxiv_id"].strip("\"'")
+
+                ranked_paper = PaperWithRanking(
+                    paper=indexed_papers[arxiv_id],
+                    relevance_score=raw_paper["relevance_score"],
+                    key_insight=raw_paper["key_insight"],
+                    expected_impact=raw_paper["expected_impact"],
+                )
+                all_ranked_papers.append(ranked_paper)
+
+        return all_ranked_papers
 
     def _create_user_prompt_and_paper_index(
         self, papers: list[Paper]
