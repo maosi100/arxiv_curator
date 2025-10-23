@@ -20,7 +20,7 @@ class RankingService:
             self.system_prompt.format(amount=target_amount),
             user_prompt,
             self.temperature,
-            model="gemini-2.5-pro",
+            model="gemini-2.5-flash",
         )
 
         ranked_papers = []

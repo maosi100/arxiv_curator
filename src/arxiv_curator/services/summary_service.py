@@ -33,7 +33,7 @@ class SummaryService:
                     ranked_paper=paper_with_ranking, error=str(e)
                 )
                 summary_errors.append(summary_error)
-                time.sleep(45)
+                time.sleep(60)
                 continue
 
             summarized_paper = PaperWithSummary(
@@ -47,6 +47,6 @@ class SummaryService:
                 ),
             )
             summarized_papers.append(summarized_paper)
-            time.sleep(45)
+            time.sleep(60)
 
         return summarized_papers, summary_errors

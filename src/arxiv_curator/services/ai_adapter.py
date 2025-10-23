@@ -57,7 +57,7 @@ class AiAdapter:
                     f"An APIError occured during LLM operation: {e}. Retrying"
                 )
 
-                sleep_time = retry * 20 + 20
+                sleep_time = retry * 60
                 time.sleep(sleep_time)
                 continue
 
