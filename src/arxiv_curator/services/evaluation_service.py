@@ -27,7 +27,7 @@ class EvaluationService:
             )
         except Exception as e:
             logger.error(f"Papers could not be evaluated: {e}")
-            self.database_repository.save_summarized_papers(papers)
+            self.database_repository.save_papers(papers)
             return None
 
         for raw_paper in response:
@@ -42,7 +42,7 @@ class EvaluationService:
             )
             evaluated_papers.append(evaluated_paper)
 
-        self.database_repository.save_evaluated_papers(evaluated_papers)
+        self.database_repository.save_papers(evaluated_papers)
 
         return evaluated_papers
 
