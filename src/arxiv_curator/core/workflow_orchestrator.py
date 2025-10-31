@@ -51,7 +51,7 @@ class WorkflowOrchestrator:
         except Exception as e:
             logger.critical(f"Couldn't summarize Papers: {e}")
             self._send_failure_report(str(e))
-            return
+            raise
 
         logger.info("Evaluating summarized papers.")
         try:

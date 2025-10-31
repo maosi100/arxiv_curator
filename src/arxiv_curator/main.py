@@ -1,4 +1,5 @@
 from __future__ import annotations
+import time
 from loguru import logger
 from dotenv import load_dotenv
 
@@ -28,12 +29,16 @@ def main():
     load_dotenv("../../.env")
     logger.add(error_sink)
     workflow_orchestrator = WorkflowOrchestrator(error_store)
-    try:
-        workflow_orchestrator.run_workflow()
-    except Exception as e:
-        print(f"Process terminated in main: {e}")
-        return
-    error_store.clear()
+    for _ in range(2):
+        try:
+            workflow_orchestrator.run_workflow()
+            break
+        except Exception as e:
+            print(f"Process terminated in main: {e}")
+            time.sleep(120)
+            error_store.clear()
+            continue
+    return
 
 
 if __name__ == "__main__":
