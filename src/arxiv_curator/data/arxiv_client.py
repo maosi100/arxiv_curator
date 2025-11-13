@@ -67,8 +67,12 @@ class ArxivClient:
 
             link = "no pdf link found"
             for possible_link in entry.links:
-                if possible_link["type"] == "application/pdf":
+                if possible_link.get("type") == "application/pdf":
                     link = possible_link["href"]
+                    break
+                elif "pdf" in possible_link.get("href"):
+                    link = possible_link["href"]
+                    break
 
             entry_dict = {
                 "arxiv_id": entry.id,
@@ -78,6 +82,7 @@ class ArxivClient:
                 "published_on": entry.published,
                 "pdf_link": link,
             }
+            print(entry_dict["pdf_link"])
 
             parsed_feed.append(entry_dict)
 
