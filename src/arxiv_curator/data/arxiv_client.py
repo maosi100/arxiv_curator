@@ -82,7 +82,6 @@ class ArxivClient:
                 "published_on": entry.published,
                 "pdf_link": link,
             }
-            print(entry_dict["pdf_link"])
 
             parsed_feed.append(entry_dict)
 
