@@ -31,7 +31,7 @@ class RankingService:
                 self.system_prompt.format(amount=str(int(target_amount) // 2)),
                 user_prompt,
                 self.temperature,
-                model="gemini-2.5-flash",
+                model="gemini-2.5-pro",
             )
 
             for raw_paper in response:
